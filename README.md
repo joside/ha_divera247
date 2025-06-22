@@ -1,35 +1,57 @@
-# ha_divera247 Custom Component
+# ha_divera247 Home Assistant Custom Component
 
-## Overview
-The `ha_divera247` custom component integrates with the Divera247 service, providing sensor data and functionality within Home Assistant.
+This custom component integrates [DIVERA 24/7](https://www.divera247.com/) with Home Assistant.  
+It provides a sensor that checks for active alarms and displays their details.
 
 ## Installation
-1. Clone this repository to your Home Assistant `custom_components` directory:
-   ```
-   git clone https://github.com/yourusername/ha_divera247.git custom_components/ha_divera247
-   ```
 
-2. Restart Home Assistant to load the new component.
+1. Copy the `custom_components/ha_divera247` folder into your Home Assistant `custom_components` directory.
+2. Restart Home Assistant.
 
 ## Configuration
-To configure the `ha_divera247` component, add the following to your `configuration.yaml` file:
+
+Add the following to your `configuration.yaml`:
 
 ```yaml
-sensor:
-  - platform: ha_divera247
-    # Add your configuration options here
+ha_divera247:
+  accesskey: YOUR_ACCESSKEY
+  scan_interval: 60  # Optional, interval in seconds (default: 60)
 ```
 
-## Usage
-Once configured, the `ha_divera247` component will provide various sensors that can be used in your Home Assistant dashboard. You can view the sensor data in the Home Assistant UI.
+- `accesskey`: Your personal API access key from divera247.
+- `scan_interval`: (Optional) How often the API should be polled (in seconds).
 
-## Development
-If you wish to contribute to the development of this component, please follow these steps:
+## Sensor
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Make your changes and ensure that they are well-tested.
-4. Submit a pull request with a clear description of your changes.
+After setup, a sensor named `sensor.divera247_letzter_einsatz` will be available.  
+It shows the title of the last alarm and provides additional attributes like `id`, `details`, and `timestamp`.
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+---
+
+# ha_divera247 Home Assistant Custom Component (Deutsch)
+
+Diese Custom Component integriert [DIVERA 24/7](https://www.divera247.com/) in Home Assistant.  
+Sie stellt einen Sensor bereit, der auf aktive Einsätze prüft und deren Details anzeigt.
+
+## Installation
+
+1. Kopiere den Ordner `custom_components/ha_divera247` in dein Home Assistant `custom_components` Verzeichnis.
+2. Starte Home Assistant neu.
+
+## Konfiguration
+
+Füge Folgendes zu deiner `configuration.yaml` hinzu:
+
+```yaml
+ha_divera247:
+  accesskey: DEIN_ACCESSKEY
+  scan_interval: 60  # Optional, Intervall in Sekunden (Standard: 60)
+```
+
+- `accesskey`: Dein persönlicher API Accesskey von divera247.
+- `scan_interval`: (Optional) Wie oft die API abgefragt werden soll (in Sekunden).
+
+## Sensor
+
+Nach der Einrichtung steht ein Sensor mit dem Namen `sensor.divera247_letzter_einsatz` zur Verfügung.  
+Er zeigt den Titel des letzten Einsatzes und weitere Attribute wie `id`, `details` und `timestamp`.
