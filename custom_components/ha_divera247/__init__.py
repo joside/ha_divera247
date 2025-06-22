@@ -1,4 +1,4 @@
-from homeassistant import ConfigEntry, HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import discovery
 import voluptuous as vol
