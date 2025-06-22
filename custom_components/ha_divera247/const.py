@@ -13,3 +13,6 @@ STATUS_ERROR = "ERROR"
 # Configuration keys
 CONF_API_KEY = "api_key"
 CONF_UPDATE_INTERVAL = "update_interval"
+CONF_ACCESSKEY = "accesskey"
+
+DEFAULT_SCAN_INTERVAL = 60
