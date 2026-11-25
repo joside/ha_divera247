@@ -1,7 +1,13 @@
 {
   "domain": "ha_divera247",
   "name": "Divera247 Integration",
-  "codeowners": ["@joside"],
+  "categories": [
+    "security_safety.alarm_systems",
+    "messaging_notifications.push_notifications"
+  ],
+  "codeowners": [
+    "@joside"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/joside/ha_divera247#readme",
   "integration_type": "service",
