@@ -35,7 +35,7 @@ Wird der Accesskey ungültig, fordert Home Assistant automatisch zur Neuanmeldun
 | Entität | Inhalt |
 |---|---|
 | `sensor.divera247_letzter_einsatz` | Stichwort des letzten Einsatzes |
-| `binary_sensor.divera247_einsatz_aktiv` | `an`, solange der letzte Einsatz offen und höchstens 60 Minuten alt ist |
+| `binary_sensor.divera247_einsatz_aktiv` | `an`, solange der letzte Einsatz offen und höchstens 60 Minuten alt ist. Fehlt ein auswertbarer Zeitstempel, gilt ein offener Einsatz als aktiv (lieber einmal zu viel als gar nicht alarmieren). |
 
 Attribute Sensor: `id`, `text`, `address`, `latitude`, `longitude`, `priority`, `closed`, `groups`, `group_names`, `date`, `ts_update`.
 

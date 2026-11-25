@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
@@ -31,6 +31,29 @@ async def async_setup_entry(
 ) -> None:
     """Set up the binary sensor from a config entry."""
     async_add_entities([DiveraActiveAlarmSensor(entry.runtime_data)])
+
+
+def _is_closed(value) -> bool:
+    """DIVERA may send true/false, 1/0 or "1"/"0"."""
+    if isinstance(value, str):
+        return value.strip().lower() in ("1", "true", "yes")
+    return bool(value)
+
+
+def _alarm_start(alarm: dict) -> datetime | None:
+    """Start time of the alarm from 'date' (or 'ts_create'), if usable."""
+    for key in ("date", "ts_create"):
+        value = alarm.get(key)
+        if isinstance(value, str) and value.strip().isdigit():
+            value = int(value.strip())
+        if isinstance(value, (int, float)) and value > 0:
+            if value > 1e11:  # milliseconds
+                value = value / 1000
+            try:
+                return dt_util.utc_from_timestamp(value)
+            except (OverflowError, OSError, ValueError):
+                continue
+    return None
 
 
 class DiveraActiveAlarmSensor(CoordinatorEntity[DiveraCoordinator], BinarySensorEntity):
@@ -65,14 +88,15 @@ class DiveraActiveAlarmSensor(CoordinatorEntity[DiveraCoordinator], BinarySensor
     @property
     def is_on(self) -> bool:
         alarm = self.coordinator.data
-        if not alarm or alarm.get("closed"):
+        if not alarm or _is_closed(alarm.get("closed")):
             return False
         if self._group_filter and not self._matched_groups:
             return False
-        date = alarm.get("date")
-        if not isinstance(date, (int, float)) or date <= 0:
-            return False
-        age = dt_util.utcnow() - dt_util.utc_from_timestamp(date)
+        started = _alarm_start(alarm)
+        if started is None:
+            # No usable timestamp: rather alarm than miss an open alarm.
+            return True
+        age = dt_util.utcnow() - started
         return age <= timedelta(minutes=ACTIVE_ALARM_WINDOW)
 
     @property
