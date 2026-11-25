@@ -30,9 +30,16 @@
     "step": {
       "init": {
         "data": {
-          "scan_interval": "Polling interval (seconds)"
+          "scan_interval": "Polling interval (seconds)",
+          "groups": "Group filter (optional)"
+        },
+        "data_description": {
+          "groups": "Comma-separated DIVERA group IDs, e.g. 177768, 177769. Only alarms for these groups switch \"Einsatz aktiv\" on. Leave empty for all alarms."
         }
       }
+    },
+    "error": {
+      "invalid_groups": "Only digits separated by commas are allowed."
     }
   },
   "entity": {

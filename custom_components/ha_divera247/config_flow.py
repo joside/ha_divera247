@@ -16,10 +16,12 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import DiveraAuthError, DiveraClient, DiveraError
 from .const import (
     CONF_ACCESSKEY,
+    CONF_GROUPS,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     MAX_SCAN_INTERVAL,
     MIN_SCAN_INTERVAL,
+    parse_group_ids,
 )
 from .coordinator import DiveraConfigEntry
 
@@ -110,21 +112,33 @@ class Divera247ConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class Divera247OptionsFlow(OptionsFlow):
-    """Change the polling interval."""
+    """Change the polling interval and the optional group filter."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
         if user_input is not None:
-            return self.async_create_entry(data=user_input)
+            groups = parse_group_ids(user_input.get(CONF_GROUPS, ""))
+            if any(not g.isdigit() for g in groups):
+                errors[CONF_GROUPS] = "invalid_groups"
+            else:
+                return self.async_create_entry(
+                    data={**user_input, CONF_GROUPS: ", ".join(groups)}
+                )
 
-        current = self.config_entry.options.get(
+        options = self.config_entry.options
+        current_interval = options.get(
             CONF_SCAN_INTERVAL,
             self.config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
         )
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
-                {vol.Optional(CONF_SCAN_INTERVAL, default=current): INTERVAL}
+                {
+                    vol.Optional(CONF_SCAN_INTERVAL, default=current_interval): INTERVAL,
+                    vol.Optional(CONF_GROUPS, default=options.get(CONF_GROUPS, "")): str,
+                }
             ),
+            errors=errors,
         )

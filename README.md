@@ -20,6 +20,10 @@ kopieren und Home Assistant neu starten.
 - **Abfrageintervall:** in Sekunden (10–3600, Standard 60). Lässt sich später über
   „Konfigurieren“ ändern.
 
+- **Gruppenfilter (optional, unter „Konfigurieren“):** kommagetrennte DIVERA-Gruppen-IDs,
+  z. B. `177768, 177769, 177770`. Dann schaltet `Einsatz aktiv` nur bei Alarmen für diese
+  Gruppen ein. Leer = alle Alarme.
+
 Wird der Accesskey ungültig, fordert Home Assistant automatisch zur Neuanmeldung auf.
 
 ## Entitäten
@@ -29,7 +33,9 @@ Wird der Accesskey ungültig, fordert Home Assistant automatisch zur Neuanmeldun
 | `sensor.divera247_letzter_einsatz` | Stichwort des letzten Einsatzes |
 | `binary_sensor.divera247_einsatz_aktiv` | `an`, solange der letzte Einsatz offen und höchstens 60 Minuten alt ist |
 
-Attribute: `id`, `text`, `address`, `latitude`, `longitude`, `priority`, `closed`, `date`, `ts_update`.
+Attribute Sensor: `id`, `text`, `address`, `latitude`, `longitude`, `priority`, `closed`, `groups`, `date`, `ts_update`.
+
+Attribute Binärsensor: `id`, `title`, `groups`, `group_filter`, `matched_groups`.
 
 ## Entwicklung
 

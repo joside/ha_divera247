@@ -30,9 +30,16 @@
     "step": {
       "init": {
         "data": {
-          "scan_interval": "Abfrageintervall (Sekunden)"
+          "scan_interval": "Abfrageintervall (Sekunden)",
+          "groups": "Gruppenfilter (optional)"
+        },
+        "data_description": {
+          "groups": "Kommagetrennte DIVERA-Gruppen-IDs, z. B. 177768, 177769. Nur Alarme für diese Gruppen schalten „Einsatz aktiv“ ein. Leer lassen für alle Alarme."
         }
       }
+    },
+    "error": {
+      "invalid_groups": "Bitte nur Zahlen, durch Kommas getrennt."
     }
   },
   "entity": {

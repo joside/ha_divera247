@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN
+from .const import DOMAIN, alarm_group_ids
 from .coordinator import DiveraConfigEntry, DiveraCoordinator
 
 
@@ -70,6 +70,7 @@ class DiveraLastAlarmSensor(CoordinatorEntity[DiveraCoordinator], SensorEntity):
             "longitude": alarm.get("lng"),
             "priority": alarm.get("priority"),
             "closed": alarm.get("closed"),
+            "groups": alarm_group_ids(alarm),
             "date": _as_datetime(alarm.get("date")),
             "ts_update": _as_datetime(alarm.get("ts_update")),
         }

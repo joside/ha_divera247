@@ -14,7 +14,13 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from .const import ACTIVE_ALARM_WINDOW, DOMAIN
+from .const import (
+    ACTIVE_ALARM_WINDOW,
+    CONF_GROUPS,
+    DOMAIN,
+    alarm_group_ids,
+    parse_group_ids,
+)
 from .coordinator import DiveraConfigEntry, DiveraCoordinator
 
 
@@ -47,9 +53,21 @@ class DiveraActiveAlarmSensor(CoordinatorEntity[DiveraCoordinator], BinarySensor
         )
 
     @property
+    def _group_filter(self) -> list[str]:
+        return parse_group_ids(self.coordinator.config_entry.options.get(CONF_GROUPS))
+
+    @property
+    def _matched_groups(self) -> list[str]:
+        groups = alarm_group_ids(self.coordinator.data)
+        wanted = self._group_filter
+        return [g for g in groups if g in wanted] if wanted else groups
+
+    @property
     def is_on(self) -> bool:
         alarm = self.coordinator.data
         if not alarm or alarm.get("closed"):
+            return False
+        if self._group_filter and not self._matched_groups:
             return False
         date = alarm.get("date")
         if not isinstance(date, (int, float)) or date <= 0:
@@ -64,4 +82,10 @@ class DiveraActiveAlarmSensor(CoordinatorEntity[DiveraCoordinator], BinarySensor
     @property
     def extra_state_attributes(self) -> dict:
         alarm = self.coordinator.data or {}
-        return {"id": alarm.get("id"), "title": alarm.get("title")}
+        return {
+            "id": alarm.get("id"),
+            "title": alarm.get("title"),
+            "groups": alarm_group_ids(alarm),
+            "group_filter": self._group_filter,
+            "matched_groups": self._matched_groups,
+        }
