@@ -18,6 +18,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: DiveraConfigEntry) -> bo
     """Set up DIVERA 24/7 from a config entry."""
     coordinator = DiveraCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
+    await coordinator.async_load_group_names()
     entry.runtime_data = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

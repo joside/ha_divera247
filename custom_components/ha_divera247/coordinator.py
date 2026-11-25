@@ -41,6 +41,19 @@ class DiveraCoordinator(DataUpdateCoordinator[dict[str, Any] | None]):
         self.client = DiveraClient(
             async_get_clientsession(hass), entry.data[CONF_ACCESSKEY]
         )
+        self.group_names: dict[str, str] = {}
+
+    async def async_load_group_names(self) -> None:
+        """Fetch group names once; failures only cost the nice names."""
+        try:
+            self.group_names = await self.client.async_get_groups()
+        except DiveraError as err:
+            _LOGGER.debug("Could not load DIVERA groups: %s", err)
+            self.group_names = {}
+
+    def names_for(self, group_ids: list[str]) -> list[str]:
+        """Readable names for group ids (falls back to the id)."""
+        return [self.group_names.get(gid, gid) for gid in group_ids]
 
     async def _async_update_data(self) -> dict[str, Any] | None:
         try:

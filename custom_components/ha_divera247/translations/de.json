@@ -34,7 +34,7 @@
           "groups": "Gruppenfilter (optional)"
         },
         "data_description": {
-          "groups": "Kommagetrennte DIVERA-Gruppen-IDs, z. B. 177768, 177769. Nur Alarme für diese Gruppen schalten „Einsatz aktiv“ ein. Leer lassen für alle Alarme."
+          "groups": "Wähle die DIVERA-Gruppen, deren Alarme „Einsatz aktiv“ einschalten. Keine Auswahl = alle Alarme. Erscheint keine Liste, trage die Gruppen-IDs mit Komma getrennt ein."
         }
       }
     },

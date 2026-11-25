@@ -71,6 +71,7 @@ class DiveraLastAlarmSensor(CoordinatorEntity[DiveraCoordinator], SensorEntity):
             "priority": alarm.get("priority"),
             "closed": alarm.get("closed"),
             "groups": alarm_group_ids(alarm),
+            "group_names": self.coordinator.names_for(alarm_group_ids(alarm)),
             "date": _as_datetime(alarm.get("date")),
             "ts_update": _as_datetime(alarm.get("ts_update")),
         }

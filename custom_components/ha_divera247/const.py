@@ -10,6 +10,7 @@ MAX_SCAN_INTERVAL = 3600
 
 API_BASE_URL = "https://app.divera247.com/api"
 API_LAST_ALARM = f"{API_BASE_URL}/last-alarm"
+API_PULL_ALL = f"{API_BASE_URL}/v2/pull/all"
 
 # An alarm counts as active for this many minutes unless it is closed earlier.
 ACTIVE_ALARM_WINDOW = 60

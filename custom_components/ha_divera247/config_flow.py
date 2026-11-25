@@ -12,6 +12,12 @@ from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFl
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.selector import (
+    SelectOptionDict,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 
 from .api import DiveraAuthError, DiveraClient, DiveraError
 from .const import (
@@ -114,30 +120,65 @@ class Divera247ConfigFlow(ConfigFlow, domain=DOMAIN):
 class Divera247OptionsFlow(OptionsFlow):
     """Change the polling interval and the optional group filter."""
 
+    def _client(self) -> DiveraClient:
+        return DiveraClient(
+            async_get_clientsession(self.hass),
+            self.config_entry.data[CONF_ACCESSKEY],
+        )
+
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         errors: dict[str, str] = {}
+        options = self.config_entry.options
+
         if user_input is not None:
-            groups = parse_group_ids(user_input.get(CONF_GROUPS, ""))
-            if any(not g.isdigit() for g in groups):
+            selected = parse_group_ids(user_input.get(CONF_GROUPS))
+            if any(not g.isdigit() for g in selected):
                 errors[CONF_GROUPS] = "invalid_groups"
             else:
                 return self.async_create_entry(
-                    data={**user_input, CONF_GROUPS: ", ".join(groups)}
+                    data={**user_input, CONF_GROUPS: selected}
                 )
 
-        options = self.config_entry.options
+        # Offer the unit's groups as a list; fall back to free text if DIVERA
+        # does not hand them out for this access key.
+        try:
+            groups = await self._client().async_get_groups()
+        except DiveraError:
+            groups = {}
+
         current_interval = options.get(
             CONF_SCAN_INTERVAL,
             self.config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
         )
+        current_groups = parse_group_ids(options.get(CONF_GROUPS))
+
+        if groups:
+            # Keep ids that are no longer listed visible instead of dropping them.
+            for gid in current_groups:
+                groups.setdefault(gid, f"Unbekannte Gruppe {gid}")
+            group_field = SelectSelector(
+                SelectSelectorConfig(
+                    options=[
+                        SelectOptionDict(value=gid, label=f"{name} ({gid})")
+                        for gid, name in groups.items()
+                    ],
+                    multiple=True,
+                    mode=SelectSelectorMode.LIST,
+                )
+            )
+            group_default: Any = current_groups
+        else:
+            group_field = str
+            group_default = ", ".join(current_groups)
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
                 {
                     vol.Optional(CONF_SCAN_INTERVAL, default=current_interval): INTERVAL,
-                    vol.Optional(CONF_GROUPS, default=options.get(CONF_GROUPS, "")): str,
+                    vol.Optional(CONF_GROUPS, default=group_default): group_field,
                 }
             ),
             errors=errors,

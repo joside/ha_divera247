@@ -88,4 +88,5 @@ class DiveraActiveAlarmSensor(CoordinatorEntity[DiveraCoordinator], BinarySensor
             "groups": alarm_group_ids(alarm),
             "group_filter": self._group_filter,
             "matched_groups": self._matched_groups,
+            "matched_group_names": self.coordinator.names_for(self._matched_groups),
         }
