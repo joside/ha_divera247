@@ -46,7 +46,7 @@ class DiveraCoordinator(DataUpdateCoordinator[dict[str, Any] | None]):
     async def async_load_group_names(self) -> None:
         """Fetch group names once; failures only cost the nice names."""
         try:
-            self.group_names = await self.client.async_get_groups()
+            self.group_names = await self.client.async_get_names()
         except DiveraError as err:
             _LOGGER.debug("Could not load DIVERA groups: %s", err)
             self.group_names = {}

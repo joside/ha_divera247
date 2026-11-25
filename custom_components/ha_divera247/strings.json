@@ -34,7 +34,7 @@
           "groups": "Group filter (optional)"
         },
         "data_description": {
-          "groups": "Select the DIVERA groups whose alarms switch \"Einsatz aktiv\" on. Select nothing for all alarms. If no list appears, enter the group IDs separated by commas."
+          "groups": "Select the DIVERA groups whose alarms switch \"Einsatz aktiv\" on, or type IDs that are not listed (e.g. the values of the alarm field \"group\"). Select nothing for all alarms."
         }
       }
     },

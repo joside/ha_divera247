@@ -22,7 +22,9 @@ kopieren und Home Assistant neu starten.
 
 - **Gruppenfilter (optional, unter „Konfigurieren“):** Die Integration liest die Gruppen
   deiner Einheit aus DIVERA (`/api/v2/pull/all`) und zeigt sie als Auswahlliste mit Namen.
-  Ausgewählte Gruppen schalten `Einsatz aktiv` ein, keine Auswahl = alle Alarme. Liefert
+  Ausgewählte Gruppen schalten `Einsatz aktiv` ein, keine Auswahl = alle Alarme.
+  Gefiltert wird auf das Alarmfeld `group`. Enthält es andere Nummern als die Liste
+  (z. B. RIC-basierte IDs), können diese direkt ins Auswahlfeld getippt werden. Liefert
   DIVERA für deinen Accesskey keine Gruppen, erscheint stattdessen ein Textfeld für
   kommagetrennte IDs.
 

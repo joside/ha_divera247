@@ -26,3 +26,20 @@ def test_groups_as_list_and_missing_names():
 def test_groups_missing():
     assert parse_groups({"data": {}}) == {}
     assert parse_groups(None) == {}
+
+
+def test_all_names_include_other_collections():
+    from custom_components.ha_divera247.api import parse_all_names
+
+    payload = {
+        "data": {
+            "cluster": {
+                "group": {"67806": {"id": 67806, "name": "Niederbühl Vollalarm"}},
+                "ric": {"177768": {"id": 177768, "name": "Vollalarm RIC"}},
+            }
+        }
+    }
+    assert parse_all_names(payload) == {
+        "177768": "Vollalarm RIC",
+        "67806": "Niederbühl Vollalarm",
+    }

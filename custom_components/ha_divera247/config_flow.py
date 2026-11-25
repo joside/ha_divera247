@@ -144,9 +144,9 @@ class Divera247OptionsFlow(OptionsFlow):
         # Offer the unit's groups as a list; fall back to free text if DIVERA
         # does not hand them out for this access key.
         try:
-            groups = await self._client().async_get_groups()
+            groups, names = await self._client().async_get_groups_and_names()
         except DiveraError:
-            groups = {}
+            groups, names = {}, {}
 
         current_interval = options.get(
             CONF_SCAN_INTERVAL,
@@ -157,7 +157,7 @@ class Divera247OptionsFlow(OptionsFlow):
         if groups:
             # Keep ids that are no longer listed visible instead of dropping them.
             for gid in current_groups:
-                groups.setdefault(gid, f"Unbekannte Gruppe {gid}")
+                groups.setdefault(gid, names.get(gid, f"Eigene ID {gid}"))
             group_field = SelectSelector(
                 SelectSelectorConfig(
                     options=[
@@ -165,7 +165,10 @@ class Divera247OptionsFlow(OptionsFlow):
                         for gid, name in groups.items()
                     ],
                     multiple=True,
-                    mode=SelectSelectorMode.LIST,
+                    # DIVERA's alarm "group" field may carry ids (e.g. RIC-based)
+                    # that are not in this list; allow typing them in.
+                    custom_value=True,
+                    mode=SelectSelectorMode.DROPDOWN,
                 )
             )
             group_default: Any = current_groups

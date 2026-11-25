@@ -20,6 +20,42 @@ class DiveraAuthError(DiveraError):
     """The access key was rejected."""
 
 
+def _collection_names(raw: Any) -> dict[str, str]:
+    """{id: name} from an id-keyed object or a list of objects."""
+    if isinstance(raw, dict):
+        items = [
+            {**value, "id": value.get("id", key)} if isinstance(value, dict) else {"id": key, "name": value}
+            for key, value in raw.items()
+        ]
+    elif isinstance(raw, list):
+        items = [item for item in raw if isinstance(item, dict)]
+    else:
+        return {}
+    names: dict[str, str] = {}
+    for item in items:
+        item_id = str(item.get("id", "")).strip()
+        name = item.get("name") or item.get("title")
+        if item_id.isdigit() and isinstance(name, str) and name.strip():
+            names[item_id] = name.strip()
+    return names
+
+
+def parse_all_names(payload: Any) -> dict[str, str]:
+    """{id: name} for every named collection under data.cluster."""
+    if not isinstance(payload, dict):
+        return {}
+    data = payload.get("data", payload)
+    cluster = data.get("cluster") if isinstance(data, dict) else None
+    if not isinstance(cluster, dict):
+        return {}
+    names: dict[str, str] = {}
+    for key, value in cluster.items():
+        if key != "group":
+            names.update(_collection_names(value))
+    names.update(parse_groups(payload))  # real groups win
+    return names
+
+
 def parse_groups(payload: Any) -> dict[str, str]:
     """Extract {group_id: name} from a /v2/pull/all response.
 
@@ -94,6 +130,20 @@ class DiveraClient:
         if not isinstance(alarm, dict) or not alarm.get("id"):
             return None
         return alarm
+
+    async def async_get_groups_and_names(self) -> tuple[dict[str, str], dict[str, str]]:
+        """One request: (groups for the picker, all known id->name labels)."""
+        status, payload = await self._async_get_json(API_PULL_ALL)
+        if status == 404 or not isinstance(payload, dict) or payload.get("success") is False:
+            return {}, {}
+        return parse_groups(payload), parse_all_names(payload)
+
+    async def async_get_names(self) -> dict[str, str]:
+        """Every id->name DIVERA exposes for the unit (groups, RICs, ...)."""
+        status, payload = await self._async_get_json(API_PULL_ALL)
+        if status == 404 or not isinstance(payload, dict) or payload.get("success") is False:
+            return {}
+        return parse_all_names(payload)
 
     async def async_get_groups(self) -> dict[str, str]:
         """Return the unit's groups as {id: name}; empty if not visible."""

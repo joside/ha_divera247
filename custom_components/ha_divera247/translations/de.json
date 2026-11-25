@@ -34,7 +34,7 @@
           "groups": "Gruppenfilter (optional)"
         },
         "data_description": {
-          "groups": "Wähle die DIVERA-Gruppen, deren Alarme „Einsatz aktiv“ einschalten. Keine Auswahl = alle Alarme. Erscheint keine Liste, trage die Gruppen-IDs mit Komma getrennt ein."
+          "groups": "Wähle die Gruppen, deren Alarme „Einsatz aktiv“ einschalten, oder tippe nicht gelistete Nummern ein (z. B. die Werte aus dem Alarmfeld „group“, wie in Node-RED). Keine Auswahl = alle Alarme."
         }
       }
     },
