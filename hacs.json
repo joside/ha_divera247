@@ -1,5 +1,4 @@
 {
-    "name": "Divera247 Integration",
-    "version": "1.0.0",
-    "domains": ["ha_divera247"]
-}   
+  "name": "Divera247 Integration",
+  "homeassistant": "2025.4.0"
+}

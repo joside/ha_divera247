@@ -1,18 +1,15 @@
-# Constants for the ha_divera247 custom component
+"""Constants for the DIVERA 24/7 integration."""
 
 DOMAIN = "ha_divera247"
-VERSION = "1.0.0"
 
-# Default values
-DEFAULT_NAME = "Divera247 Sensor"
-
-# Status codes
-STATUS_OK = "OK"
-STATUS_ERROR = "ERROR"
-
-# Configuration keys
-CONF_API_KEY = "api_key"
-CONF_UPDATE_INTERVAL = "update_interval"
 CONF_ACCESSKEY = "accesskey"
 
-DEFAULT_SCAN_INTERVAL = 60
+DEFAULT_SCAN_INTERVAL = 60  # seconds
+MIN_SCAN_INTERVAL = 10
+MAX_SCAN_INTERVAL = 3600
+
+API_BASE_URL = "https://app.divera247.com/api"
+API_LAST_ALARM = f"{API_BASE_URL}/last-alarm"
+
+# An alarm counts as active for this many minutes unless it is closed earlier.
+ACTIVE_ALARM_WINDOW = 60

@@ -1,14 +1,12 @@
 {
   "domain": "ha_divera247",
   "name": "Divera247 Integration",
-  "config_flow": true,
-  "issue_tracker": "",
-  "version": "1.0.0",
-  "documentation": "https://github.com/yourusername/ha_divera247#readme",
-  "requirements": [],
-  "dependencies": [],
   "codeowners": ["@joside"],
-  "iot_class": "local_polling",
-  "integration_type": "hub",
-  "after_dependencies": ["homeassistant", "http"]
+  "config_flow": true,
+  "documentation": "https://github.com/joside/ha_divera247#readme",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/joside/ha_divera247/issues",
+  "requirements": [],
+  "version": "1.1.0"
 }

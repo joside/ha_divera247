@@ -1,0 +1,50 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "DIVERA 24/7",
+        "description": "Gib deinen DIVERA-24/7-Accesskey ein (in der DIVERA-Web-App unter Einstellungen → Debug → API).",
+        "data": {
+          "accesskey": "Accesskey",
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "DIVERA 24/7 neu anmelden",
+        "description": "Der Accesskey wird nicht mehr akzeptiert. Bitte gib einen neuen ein.",
+        "data": {
+          "accesskey": "Accesskey"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Der Accesskey wurde abgelehnt.",
+      "cannot_connect": "Keine Verbindung zu DIVERA 24/7 möglich."
+    },
+    "abort": {
+      "already_configured": "Dieser Accesskey ist bereits eingerichtet.",
+      "reauth_successful": "Die Neuanmeldung war erfolgreich."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "last_alarm": {
+        "name": "Letzter Einsatz"
+      }
+    },
+    "binary_sensor": {
+      "active_alarm": {
+        "name": "Einsatz aktiv"
+      }
+    }
+  }
+}

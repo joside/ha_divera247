@@ -1,85 +1,75 @@
-import logging
-from datetime import timedelta
-import aiohttp
-import async_timeout
+"""Sensor for the last DIVERA 24/7 alarm."""
+
+from __future__ import annotations
+
+from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import CONF_SCAN_INTERVAL
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.core import HomeAssistant
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN
+from .coordinator import DiveraConfigEntry, DiveraCoordinator
 
-_LOGGER = logging.getLogger(__name__)
 
-DEFAULT_SCAN_INTERVAL = timedelta(seconds=60)
-API_URL = "https://app.divera247.com/api/last-alarm"
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: DiveraConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    """Set up the sensor from a config entry."""
+    async_add_entities([DiveraLastAlarmSensor(entry.runtime_data)])
 
-CONF_ACCESSKEY = "accesskey"
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Set up the sensor platform."""
-    pass  # Wird nicht benötigt, da async_setup_entry verwendet wird
+def _as_datetime(value: Any):
+    """DIVERA sends unix timestamps; convert them for the attributes."""
+    if isinstance(value, (int, float)) and value > 0:
+        return dt_util.as_local(dt_util.utc_from_timestamp(value))
+    return value
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
-    """Set up sensor from a config entry."""
-    scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-    accesskey = entry.data.get(CONF_ACCESSKEY)
-    coordinator = Divera247Coordinator(hass, scan_interval, accesskey)
-    await coordinator.async_config_entry_first_refresh()
-    async_add_entities([Divera247Sensor(coordinator)], True)
 
-class Divera247Coordinator(DataUpdateCoordinator):
-    def __init__(self, hass, scan_interval, accesskey):
-        super().__init__(
-            hass,
-            _LOGGER,
-            name="divera247",
-            update_interval=scan_interval,
+class DiveraLastAlarmSensor(CoordinatorEntity[DiveraCoordinator], SensorEntity):
+    """Title of the last alarm, details as attributes."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "last_alarm"
+    _attr_icon = "mdi:fire-truck"
+
+    def __init__(self, coordinator: DiveraCoordinator) -> None:
+        super().__init__(coordinator)
+        entry = coordinator.config_entry
+        self._attr_unique_id = f"{entry.entry_id}_last_alarm"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name="Divera247",
+            manufacturer="DIVERA GmbH",
+            entry_type=DeviceEntryType.SERVICE,
+            configuration_url="https://app.divera247.com",
         )
-        self.accesskey = accesskey
-
-    async def _async_update_data(self):
-        try:
-            async with async_timeout.timeout(10):
-                params = {"accesskey": self.accesskey}
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(API_URL, params=params) as response:
-                        if response.status != 200:
-                            raise UpdateFailed(f"Fehler beim Abrufen der Daten: {response.status}")
-                        return await response.json()
-        except Exception as err:
-            raise UpdateFailed(f"Fehler beim Update: {err}")
-
-class Divera247Sensor(SensorEntity):
-    def __init__(self, coordinator: Divera247Coordinator):
-        self.coordinator = coordinator
-        self._attr_name = "Divera247 Letzter Einsatz"
-        self._attr_unique_id = "divera247_last_alarm"
 
     @property
-    def available(self):
-        return self.coordinator.last_update_success
+    def native_value(self) -> str | None:
+        alarm = self.coordinator.data
+        if not alarm:
+            return None
+        return alarm.get("title") or "Unbekannter Einsatz"
 
     @property
-    def native_value(self):
-        data = self.coordinator.data
-        if data and "id" in data:
-            return data.get("title", "Unbekannter Einsatz")
-        return None
-
-    @property
-    def extra_state_attributes(self):
-        data = self.coordinator.data
-        if not data:
+    def extra_state_attributes(self) -> dict[str, Any]:
+        alarm = self.coordinator.data
+        if not alarm:
             return {}
         return {
-            "id": data.get("id"),
-            "details": data.get("details"),
-            "timestamp": data.get("timestamp"),
+            "id": alarm.get("id"),
+            "text": alarm.get("text"),
+            "address": alarm.get("address"),
+            "latitude": alarm.get("lat"),
+            "longitude": alarm.get("lng"),
+            "priority": alarm.get("priority"),
+            "closed": alarm.get("closed"),
+            "date": _as_datetime(alarm.get("date")),
+            "ts_update": _as_datetime(alarm.get("ts_update")),
         }
-
-    async def async_update(self):
-        await self.coordinator.async_request_refresh()

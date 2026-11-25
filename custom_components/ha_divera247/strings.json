@@ -1,0 +1,50 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "DIVERA 24/7",
+        "description": "Enter your DIVERA 24/7 access key (Settings → Debug → API in the DIVERA web app).",
+        "data": {
+          "accesskey": "Access key",
+          "scan_interval": "Polling interval (seconds)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate DIVERA 24/7",
+        "description": "The access key is no longer accepted. Enter a new one.",
+        "data": {
+          "accesskey": "Access key"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "The access key was rejected.",
+      "cannot_connect": "Could not connect to DIVERA 24/7."
+    },
+    "abort": {
+      "already_configured": "This access key is already configured.",
+      "reauth_successful": "Re-authentication was successful."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Polling interval (seconds)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "last_alarm": {
+        "name": "Letzter Einsatz"
+      }
+    },
+    "binary_sensor": {
+      "active_alarm": {
+        "name": "Einsatz aktiv"
+      }
+    }
+  }
+}

@@ -1,57 +1,39 @@
-# ha_divera247 Home Assistant Custom Component
+# ha_divera247 – DIVERA 24/7 für Home Assistant
 
-This custom component integrates [DIVERA 24/7](https://www.divera247.com/) with Home Assistant.  
-It provides a sensor that checks for active alarms and displays their details.
-
-## Installation
-
-1. Copy the `custom_components/ha_divera247` folder into your Home Assistant `custom_components` directory.
-2. Restart Home Assistant.
-
-## Configuration
-
-Add the following to your `configuration.yaml`:
-
-```yaml
-ha_divera247:
-  accesskey: YOUR_ACCESSKEY
-  scan_interval: 60  # Optional, interval in seconds (default: 60)
-```
-
-- `accesskey`: Your personal API access key from divera247.
-- `scan_interval`: (Optional) How often the API should be polled (in seconds).
-
-## Sensor
-
-After setup, a sensor named `sensor.divera247_letzter_einsatz` will be available.  
-It shows the title of the last alarm and provides additional attributes like `id`, `details`, and `timestamp`.
-
----
-
-# ha_divera247 Home Assistant Custom Component (Deutsch)
-
-Diese Custom Component integriert [DIVERA 24/7](https://www.divera247.com/) in Home Assistant.  
-Sie stellt einen Sensor bereit, der auf aktive Einsätze prüft und deren Details anzeigt.
+Diese Custom Integration bindet [DIVERA 24/7](https://www.divera247.com/) in Home Assistant ein.
+Sie fragt regelmäßig den letzten Einsatz ab und stellt ihn als Sensor bereit.
 
 ## Installation
 
-1. Kopiere den Ordner `custom_components/ha_divera247` in dein Home Assistant `custom_components` Verzeichnis.
-2. Starte Home Assistant neu.
+**Über HACS (empfohlen):** Dieses Repository in HACS als benutzerdefiniertes Repository
+(Typ „Integration“) hinzufügen, „Divera247 Integration“ installieren und Home Assistant neu starten.
 
-## Konfiguration
+**Manuell:** Den Ordner `custom_components/ha_divera247` in dein `custom_components`-Verzeichnis
+kopieren und Home Assistant neu starten.
 
-Füge Folgendes zu deiner `configuration.yaml` hinzu:
+## Einrichtung
 
-```yaml
-ha_divera247:
-  accesskey: DEIN_ACCESSKEY
-  scan_interval: 60  # Optional, Intervall in Sekunden (Standard: 60)
+*Einstellungen → Geräte & Dienste → Integration hinzufügen → „Divera247 Integration“*
+
+- **Accesskey:** dein persönlicher oder Einheits-Accesskey aus der DIVERA-Web-App
+  (Einstellungen → Debug → API). Er wird beim Einrichten geprüft.
+- **Abfrageintervall:** in Sekunden (10–3600, Standard 60). Lässt sich später über
+  „Konfigurieren“ ändern.
+
+Wird der Accesskey ungültig, fordert Home Assistant automatisch zur Neuanmeldung auf.
+
+## Entitäten
+
+| Entität | Inhalt |
+|---|---|
+| `sensor.divera247_letzter_einsatz` | Stichwort des letzten Einsatzes |
+| `binary_sensor.divera247_einsatz_aktiv` | `an`, solange der letzte Einsatz offen und höchstens 60 Minuten alt ist |
+
+Attribute: `id`, `text`, `address`, `latitude`, `longitude`, `priority`, `closed`, `date`, `ts_update`.
+
+## Entwicklung
+
+```bash
+pip install -r requirements_test.txt
+pytest
 ```
-
-- `accesskey`: Dein persönlicher API Accesskey von divera247.
-- `scan_interval`: (Optional) Wie oft die API abgefragt werden soll (in Sekunden).
-
-## Sensor
-
-Nach der Einrichtung steht ein Sensor mit dem Namen `sensor.divera247_letzter_einsatz` zur Verfügung.  
-Er zeigt den Titel des letzten Einsatzes und weitere Attribute wie `id`, `details` und `timestamp`.
