@@ -1,12 +1,19 @@
 # ha_divera247 – DIVERA 24/7 für Home Assistant
 
+[![Validate](https://github.com/joside/ha_divera247/actions/workflows/validate.yml/badge.svg)](https://github.com/joside/ha_divera247/actions/workflows/validate.yml)
+[![Tests](https://github.com/joside/ha_divera247/actions/workflows/tests.yml/badge.svg)](https://github.com/joside/ha_divera247/actions/workflows/tests.yml)
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
+
+> Inoffizielle Integration, nicht mit der DIVERA GmbH verbunden.
+
 Diese Custom Integration bindet [DIVERA 24/7](https://www.divera247.com/) in Home Assistant ein.
 Sie fragt regelmäßig den letzten Einsatz ab und stellt ihn als Sensor bereit.
 
 ## Installation
 
-**Über HACS (empfohlen):** Dieses Repository in HACS als benutzerdefiniertes Repository
-(Typ „Integration“) hinzufügen, „Divera247 Integration“ installieren und Home Assistant neu starten.
+**Über HACS (empfohlen):** In HACS über *⋮ → Benutzerdefinierte Repositories*
+`https://github.com/joside/ha_divera247` als Typ „Integration“ hinzufügen,
+„Divera247 Integration“ herunterladen und Home Assistant neu starten.
 
 **Manuell:** Den Ordner `custom_components/ha_divera247` in dein `custom_components`-Verzeichnis
 kopieren und Home Assistant neu starten.
@@ -47,3 +54,9 @@ Attribute Binärsensor: `id`, `title`, `groups`, `group_filter`, `matched_groups
 pip install -r requirements_test.txt
 pytest
 ```
+
+## Datenschutz
+
+Der Accesskey wird nur in der Home-Assistant-Konfiguration gespeichert und ausschließlich
+an `app.divera247.com` gesendet. Alarmtexte können personenbezogene Daten enthalten –
+überlege, wo du sie anzeigen oder ansagen lässt.
