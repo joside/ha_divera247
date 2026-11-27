@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from typing import Any
 
 import aiohttp
@@ -10,6 +11,8 @@ import aiohttp
 from .const import API_LAST_ALARM, API_PULL_ALL
 
 REQUEST_TIMEOUT = 10
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class DiveraError(Exception):
@@ -95,6 +98,9 @@ class DiveraClient:
         self._session = session
         self._accesskey = accesskey
 
+    def _hide_key(self, text: str) -> str:
+        return text.replace(self._accesskey, "***") if self._accesskey else text
+
     async def _async_get_json(self, url: str) -> tuple[int, Any]:
         try:
             async with asyncio.timeout(REQUEST_TIMEOUT):
@@ -114,9 +120,7 @@ class DiveraClient:
             # build the message from the status only.
             raise DiveraError(f"DIVERA 24/7 returned HTTP {err.status}") from None
         except (aiohttp.ClientError, asyncio.TimeoutError, ValueError) as err:
-            message = str(err)
-            if self._accesskey:
-                message = message.replace(self._accesskey, "***")
+            message = self._hide_key(str(err))
             raise DiveraError(
                 f"Error communicating with DIVERA 24/7: {message}"
             ) from None
@@ -129,14 +133,18 @@ class DiveraClient:
         if not isinstance(payload, dict):
             raise DiveraError("Unexpected response from DIVERA 24/7")
         if payload.get("success") is False:
-            errors = str(payload.get("errors", ""))
+            # DIVERA uses "error" (string) or "errors" (list/object).
+            errors = str(payload.get("errors") or payload.get("error") or "")
             if "accesskey" in errors.lower() or "zugriff" in errors.lower():
-                raise DiveraAuthError(errors)
+                raise DiveraAuthError(self._hide_key(errors))
+            # Normal answer while there is no alarm for this key.
+            _LOGGER.debug("DIVERA 24/7: no alarm (%s)", self._hide_key(errors)[:200])
             return None
 
         # The API wraps the alarm in "data"; fall back to the plain payload.
         alarm = payload.get("data", payload)
         if not isinstance(alarm, dict) or not alarm.get("id"):
+            _LOGGER.debug("DIVERA 24/7 answered without an alarm")
             return None
         return alarm
 

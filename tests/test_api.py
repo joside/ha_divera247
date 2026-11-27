@@ -90,3 +90,41 @@ async def test_other_client_error_redacts_accesskey():
         await client.async_get_last_alarm()
     assert SECRET not in str(exc_info.value)
     assert "Error communicating with DIVERA 24/7" in str(exc_info.value)
+
+
+# --- success=false means "no alarm"; auth texts may come in error or errors ---
+
+import logging
+
+
+def _client_with_payload(payload) -> DiveraClient:
+    response = MagicMock(status=200)
+    response.json = AsyncMock(return_value=payload)
+    session = MagicMock()
+    session.get = AsyncMock(return_value=response)
+    return DiveraClient(session, SECRET)
+
+
+async def test_success_false_is_no_alarm_without_warning(caplog):
+    client = _client_with_payload({"success": False, "error": "Keine Alarmierung"})
+    with caplog.at_level(logging.DEBUG):
+        assert await client.async_get_last_alarm() is None
+    assert not [r for r in caplog.records if r.levelno >= logging.WARNING]
+    assert "Keine Alarmierung" in caplog.text
+
+
+@pytest.mark.parametrize("field", ["error", "errors"])
+async def test_auth_text_in_error_or_errors(field):
+    from custom_components.ha_divera247.api import DiveraAuthError
+
+    client = _client_with_payload({"success": False, field: f"accesskey {SECRET} ungültig"})
+    with pytest.raises(DiveraAuthError) as exc_info:
+        await client.async_get_last_alarm()
+    assert SECRET not in str(exc_info.value)
+
+
+async def test_debug_log_hides_accesskey(caplog):
+    client = _client_with_payload({"success": False, "error": f"kein Alarm für {SECRET}"})
+    with caplog.at_level(logging.DEBUG):
+        await client.async_get_last_alarm()
+    assert SECRET not in caplog.text
