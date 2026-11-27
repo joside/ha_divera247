@@ -109,8 +109,17 @@ class DiveraClient:
                 return response.status, await response.json(content_type=None)
         except DiveraError:
             raise
+        except aiohttp.ClientResponseError as err:
+            # str(err) contains the request URL including ?accesskey=..., so
+            # build the message from the status only.
+            raise DiveraError(f"DIVERA 24/7 returned HTTP {err.status}") from None
         except (aiohttp.ClientError, asyncio.TimeoutError, ValueError) as err:
-            raise DiveraError(f"Error communicating with DIVERA 24/7: {err}") from err
+            message = str(err)
+            if self._accesskey:
+                message = message.replace(self._accesskey, "***")
+            raise DiveraError(
+                f"Error communicating with DIVERA 24/7: {message}"
+            ) from None
 
     async def async_get_last_alarm(self) -> dict[str, Any] | None:
         """Return the last alarm, or None if there is none."""

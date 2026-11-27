@@ -11,9 +11,12 @@ Sie fragt regelmäßig den letzten Einsatz ab und stellt ihn als Sensor bereit.
 
 ## Installation
 
-**Über HACS (empfohlen):** In HACS über *⋮ → Benutzerdefinierte Repositories*
-`https://github.com/joside/ha_divera247` als Typ „Integration“ hinzufügen,
-„Divera247 Integration“ herunterladen und Home Assistant neu starten.
+**Über HACS (empfohlen):** In HACS nach „Divera247 Integration“ suchen, herunterladen
+und Home Assistant neu starten.
+
+Falls die Integration in HACS (noch) nicht gefunden wird: über *⋮ → Benutzerdefinierte
+Repositories* `https://github.com/joside/ha_divera247` als Typ „Integration“ hinzufügen,
+danach wie oben herunterladen.
 
 **Manuell:** Den Ordner `custom_components/ha_divera247` in dein `custom_components`-Verzeichnis
 kopieren und Home Assistant neu starten.
