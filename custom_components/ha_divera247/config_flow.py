@@ -17,6 +17,9 @@ from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
 )
 
 from .api import DiveraAuthError, DiveraClient, DiveraError
@@ -33,6 +36,11 @@ from .coordinator import DiveraConfigEntry
 
 INTERVAL = vol.All(
     vol.Coerce(int), vol.Range(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL)
+)
+
+
+ACCESSKEY_SELECTOR = TextSelector(
+    TextSelectorConfig(type=TextSelectorType.PASSWORD)
 )
 
 
@@ -77,7 +85,7 @@ class Divera247ConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_ACCESSKEY): str,
+                    vol.Required(CONF_ACCESSKEY): ACCESSKEY_SELECTOR,
                     vol.Optional(
                         CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
                     ): INTERVAL,
@@ -107,7 +115,7 @@ class Divera247ConfigFlow(ConfigFlow, domain=DOMAIN):
             errors["base"] = error
         return self.async_show_form(
             step_id="reauth_confirm",
-            data_schema=vol.Schema({vol.Required(CONF_ACCESSKEY): str}),
+            data_schema=vol.Schema({vol.Required(CONF_ACCESSKEY): ACCESSKEY_SELECTOR}),
             errors=errors,
         )
 
