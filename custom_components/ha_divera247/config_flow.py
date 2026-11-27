@@ -119,6 +119,33 @@ class Divera247ConfigFlow(ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Swap the access key without deleting the integration."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            accesskey = user_input[CONF_ACCESSKEY].strip()
+            entry = self._get_reconfigure_entry()
+            new_id = _key_id(accesskey)
+            if any(
+                other.unique_id == new_id and other.entry_id != entry.entry_id
+                for other in self._async_current_entries(include_ignore=False)
+            ):
+                return self.async_abort(reason="already_configured")
+            if not (error := await self._async_validate(accesskey)):
+                return self.async_update_reload_and_abort(
+                    entry,
+                    unique_id=new_id,
+                    data_updates={CONF_ACCESSKEY: accesskey},
+                )
+            errors["base"] = error
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema({vol.Required(CONF_ACCESSKEY): ACCESSKEY_SELECTOR}),
+            errors=errors,
+        )
+
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: DiveraConfigEntry) -> OptionsFlow:

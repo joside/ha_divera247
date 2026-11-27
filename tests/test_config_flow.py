@@ -90,3 +90,67 @@ async def test_reauth_form_masks_accesskey(hass):
     result = await entry.start_reauth_flow(hass)
     assert result["step_id"] == "reauth_confirm"
     assert _accesskey_selector(result)
+
+
+# --- reconfigure: swap the access key without deleting the entry --------------
+
+from custom_components.ha_divera247.config_flow import _key_id
+
+
+def _entry(hass, key="oldkey"):
+    from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+    entry = MockConfigEntry(
+        domain=DOMAIN, data={CONF_ACCESSKEY: key}, unique_id=_key_id(key)
+    )
+    entry.add_to_hass(hass)
+    return entry
+
+
+async def test_reconfigure_changes_key(hass):
+    entry = _entry(hass)
+    result = await entry.start_reconfigure_flow(hass)
+    assert result["step_id"] == "reconfigure"
+    assert _accesskey_selector(result)
+
+    with patch(VALIDATE, return_value=None), patch(SETUP, return_value=True):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {CONF_ACCESSKEY: " newkey "}
+        )
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "reconfigure_successful"
+    assert entry.data[CONF_ACCESSKEY] == "newkey"
+    assert entry.unique_id == _key_id("newkey")
+
+
+async def test_reconfigure_rejected_key_keeps_old(hass):
+    entry = _entry(hass)
+    result = await entry.start_reconfigure_flow(hass)
+    with patch(VALIDATE, side_effect=DiveraAuthError):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {CONF_ACCESSKEY: "badkey"}
+        )
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"base": "invalid_auth"}
+    assert entry.data[CONF_ACCESSKEY] == "oldkey"
+
+
+async def test_reconfigure_same_key_is_allowed(hass):
+    entry = _entry(hass)
+    result = await entry.start_reconfigure_flow(hass)
+    with patch(VALIDATE, return_value=None), patch(SETUP, return_value=True):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {CONF_ACCESSKEY: "oldkey"}
+        )
+    assert result["reason"] == "reconfigure_successful"
+
+
+async def test_reconfigure_key_of_other_entry_aborts(hass):
+    entry = _entry(hass, "firstkey")
+    _entry(hass, "secondkey")
+    result = await entry.start_reconfigure_flow(hass)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_ACCESSKEY: "secondkey"}
+    )
+    assert result["reason"] == "already_configured"
+    assert entry.data[CONF_ACCESSKEY] == "firstkey"

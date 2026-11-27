@@ -39,6 +39,9 @@ kopieren und Home Assistant neu starten.
   kommagetrennte IDs.
 
 Wird der Accesskey ungültig, fordert Home Assistant automatisch zur Neuanmeldung auf.
+Den Accesskey wechseln kannst du jederzeit über **⋮ → Neu konfigurieren** an der Integration,
+ohne sie zu löschen. Fehlen Alarme, nimm den Einheits-Accesskey: Ein persönlicher
+Accesskey sieht nur Alarme, bei denen du selbst alarmiert wurdest.
 
 ## Entitäten
 

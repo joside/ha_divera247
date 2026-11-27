@@ -15,6 +15,13 @@
         "data": {
           "accesskey": "Accesskey"
         }
+      },
+      "reconfigure": {
+        "title": "DIVERA-24/7-Accesskey ändern",
+        "description": "Gib den neuen Accesskey ein. Fehlen Alarme, nimm den Accesskey der Einheit: Ein persönlicher Accesskey sieht nur Alarme, bei denen du selbst alarmiert wurdest.",
+        "data": {
+          "accesskey": "Accesskey"
+        }
       }
     },
     "error": {
@@ -23,7 +30,8 @@
     },
     "abort": {
       "already_configured": "Dieser Accesskey ist bereits eingerichtet.",
-      "reauth_successful": "Die Neuanmeldung war erfolgreich."
+      "reauth_successful": "Die Neuanmeldung war erfolgreich.",
+      "reconfigure_successful": "Der Accesskey wurde geändert."
     }
   },
   "options": {
